@@ -1,0 +1,377 @@
+﻿@* @model List<PRY_TrabajadoresPrueba.Models.Result.Sp_Mostrar_Trabajadores> *@
+@model PRY_TrabajadoresPrueba.Models.ViewModels.ViewModel_Trabajadores
+
+
+<div class="container mt-4">
+    <div class="mb-4">
+        <h2 class="text-center mb-3">Lista de Trabajadores</h2>
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-8">
+                <select id="selectGenero" class="form-select w-100">
+                    <option value="">Seleccione Género</option>
+                    <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary w-100" id="btnBuscar">Buscar</button>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#modalAdicionar">Adicionar</button>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-striped-columns table-hover" id="tablaTrabajadores">
+        <thead class="table-primary">
+            <tr>
+                <th>Tipo de Documento</th>
+                <th>Nro de Documento</th>
+                <th>Nombres</th>
+                <th>Sexo</th>
+                <th>Departamentos</th>
+                <th>Provincia</th>
+                <th>Distrito</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            @if (Model != null && Model.Trabajadores.Any())
+            {
+                @foreach (var trabajador in Model.Trabajadores)
+                {
+                    var colorFila = trabajador.Sexo == "M" ? "#cce5ff" : "#ffe5b4";
+                    <tr style="background-color: @colorFila">
+                        <td>@trabajador.TipoDocumento</td>
+                        <td>@trabajador.NumeroDocumento</td>
+                        <td>@trabajador.Nombres</td>
+                        <td>@trabajador.Sexo</td>
+                        <td>@trabajador.Departamento</td>
+                        <td>@trabajador.Provincia</td>
+                        <td>@trabajador.Distrito</td>
+                        <td>
+                            <button type="button" class="btn btn-warning btn-sm" data-id="@trabajador.Id" onclick="editarTrabajador(this)"><i class="fas fa-edit"></i></button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminacion(@trabajador.Id)"><i class="fas fa-user-times"></i> </button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="8" class="text-center">No hay datos para mostrar.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@* Modal de Insercion *@
+<div class="modal fade" id="modalAdicionar" tabindex="-1" aria-labelledby="modalAdicionarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalAdicionarLabel">Adicionar Trabajador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-action="Create" method="post">
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
+                            <select class="form-select" name="TIP_DOCUMENTO" required>
+                                <option value="">Seleccione</option>
+                                @foreach (var TipDoc in Model.TiposDocumento)
+                                {
+                                    <option value="@TipDoc.CodDocumento">
+                                        @TipDoc.DescDocumento
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="numeroDocumento" class="form-label">N° Documento</label>
+                            <input type="text" class="form-control" id="numeroDocumento" name="NUM_DOCUMENTO" placeholder="Ingrese número" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="nombres" class="form-label">Nombres</label>
+                            <input type="text" class="form-control" id="nombres" name="NOMBRES" placeholder="Ingrese nombres" required>
+                        </div>
+                        <div class="col">
+                            <label for="sexo" class="form-label">Sexo</label>
+                            <select class="form-select" id="sexo" name="SEXO" required>
+                                <option value="">Seleccione</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="departamento" class="form-label">Departamento</label>
+                            <select id="departamento" class="form-select" name="ID_DEPARTAMENTO" required>
+                            <option value="">Seleccione</option>
+                            @foreach (var depto in Model.Departamentos)
+                            {
+                                <option value="@depto.Id">
+                                        @depto.NombreDepartamento
+                                </option>
+                            }
+                        </select>
+                        </div>
+                        <div class="col">
+                            <label for="provincia" class="form-label">Provincia</label>
+                            <select id="provincia" class="form-select" name="ID_PROVINCIA" required>
+                                <option value="">Seleccione</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="distrito" class="form-label">Distrito</label>
+                            <select id="distrito" class="form-select" name="ID_DISTRITO" required>
+                                <option value="">Seleccione</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal de Edicion *@
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-labelledby="modalEditarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalEditarLabel">Editar Usuario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form method="post" asp-action="Update">
+           @*      <div class="modal-header">
+                    <h5 class="modal-title  bg-success text-white" id="modalEditarLabel">Editar Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div> *@
+                <div class="modal-body">
+                    <input type="hidden" id="txtId" name="ID" />
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="tipoDocumento" class="form-label">Tipo de Documento</label>
+                            <select id="TxtTipDocumento" name="TIP_DOCUMENTO" class="form-select" required>
+                                <option value="">Seleccione</option>
+                                @foreach (var TipDoc in Model.TiposDocumento)
+                                {
+                                    <option value="@TipDoc.CodDocumento">
+                                        @TipDoc.DescDocumento
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="numeroDocumento" class="form-label">N° Documento</label>
+                            <input type="text" id="txtNumDocumento" class="form-control" name="NUM_DOCUMENTO" placeholder="Ingrese número" required>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="nombres" class="form-label">Nombres</label>
+                            <input type="text" id="txtNombre" class="form-control" name="NOMBRES" placeholder="Ingrese nombres" required>
+                        </div>
+                        <div class="col">
+                            <label for="sexo" class="form-label">Sexo</label>
+                            <select id="TxtSexo" name="SEXO" class="form-select" required>
+                                <option value="">Seleccione</option>
+                                <option value="M">Masculino</option>
+                                <option value="F">Femenino</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label for="departamento" class="form-label">Departamento</label>
+                            <select id="txtdepartamento" name="ID_DEPARTAMENTO" class="form-select" required>
+                                <option value="">Seleccione</option>
+                                @foreach (var depto in Model.Departamentos)
+                                {
+                                    <option value="@depto.Id">
+                                        @depto.NombreDepartamento
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="provincia" class="form-label">Provincia</label>
+                            <select id="txtprovincia" class="form-select" name="ID_PROVINCIA" required>
+                                <option value="">Seleccione</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label for="distrito" class="form-label">Distrito</label>
+                            <select id="txtdistrito" class="form-select" name="ID_DISTRITO" required>
+                                <option value="">Seleccione</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            ///Insercion
+
+            $('#departamento').change(function () {
+                let idDepto = $(this).val();
+
+                $('#provincia').empty().append('<option value="">Seleccione</option>');
+                $('#distrito').empty().append('<option value="">Seleccione</option>');
+
+                if (idDepto) {
+                    $.get('/Tablas/ObtenerProvincias', { idDepartamento: idDepto }, function (data) {
+                        data.forEach(p => {
+                            $('#provincia').append(`<option value="${p.id}">${p.nombreProvincia}</option>`);
+                        });
+                    });
+                }
+            });
+
+            $('#provincia').on('change', function () {
+                let idProv = $(this).val();
+
+                $('#distrito').empty().append('<option value="">Seleccione</option>');
+
+                if (idProv) {
+                    $.get('/Tablas/ObtenerDistritos', { idProvincia: idProv }, function (data) {
+                        data.forEach(d => {
+                            $('#distrito').append(`<option value="${d.id}">${d.nombreDistrito}</option>`);
+                        });
+                    });
+                }
+            });
+
+            ///Modificacion
+
+             $('#txtdepartamento').change(function () {
+                let idDepto = $(this).val();
+
+                $('#txtprovincia').empty().append('<option value="">Seleccione</option>');
+                $('#txtdistrito').empty().append('<option value="">Seleccione</option>');
+
+                if (idDepto) {
+                    $.get('/Tablas/ObtenerProvincias', { idDepartamento: idDepto }, function (data) {
+                        data.forEach(p => {
+                            $('#txtprovincia').append(`<option value="${p.id}">${p.nombreProvincia}</option>`);
+                        });
+                    });
+                }
+            });
+
+            $('#txtprovincia').on('change', function () {
+                let idProv = $(this).val();
+
+                $('#txtdistrito').empty().append('<option value="">Seleccione</option>');
+
+                if (idProv) {
+                    $.get('/Tablas/ObtenerDistritos', { idProvincia: idProv }, function (data) {
+                        data.forEach(d => {
+                            $('#txtdistrito').append(`<option value="${d.id}">${d.nombreDistrito}</option>`);
+                        });
+                    });
+                }
+            });
+
+        });
+
+        function confirmarEliminacion(id) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "¡Esta acción no se puede deshacer!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `/Trabajadores/Delete/${id}`;
+                }
+            });
+        }
+
+        function editarTrabajador(button) {
+            var id = $(button).data('id');
+
+            $.get('/Trabajadores/BuscarTrabajadorId', { id: id }, function (data) {
+                if (data) {
+                    console.log(data);
+                    // Llena tus campos
+                    $('#txtId').val(data.idUsuario);
+                    $('#TxtTipDocumento').val(data.tipDocumento);
+                    $('#txtNumDocumento').val(data.numDocumento);
+                    $('#txtNombre').val(data.nombre);
+                    $('#TxtSexo').val(data.sex);
+                    $('#txtdepartamento').val(data.idDepartamento);
+
+                     cargarUbicacion(data.idDepartamento, data.idProvincia, data.idDistrito);
+
+                    // Muestra el modal
+                    $('#modalEditar').modal('show');
+                } else {
+                    alert("No se encontraron datos del trabajador.");
+                }
+            });
+        }
+
+        function cargarUbicacion(idDepartamentoSeleccionado, idProvinciaSeleccionada, idDistritoSeleccionado) {
+            if (idDepartamentoSeleccionado) {
+                $.get('/Tablas/ObtenerProvincias', { idDepartamento: idDepartamentoSeleccionado }, function (data) {
+                    $('#txtprovincia').empty().append('<option value="">Seleccione</option>');
+                    data.forEach(p => {
+                        let selected = p.id === idProvinciaSeleccionada ? 'selected' : '';
+                        $('#txtprovincia').append(`<option value="${p.id}" ${selected}>${p.nombreProvincia}</option>`);
+                    });
+
+                    if (idProvinciaSeleccionada) {
+                        $.get('/Tablas/ObtenerDistritos', { idProvincia: idProvinciaSeleccionada }, function (data) {
+                            $('#txtdistrito').empty().append('<option value="">Seleccione</option>');
+                            data.forEach(d => {
+                                let selected = d.id === idDistritoSeleccionado ? 'selected' : '';
+                                $('#txtdistrito').append(`<option value="${d.id}" ${selected}>${d.nombreDistrito}</option>`);
+                            });
+                        });
+                    }
+                });
+            }
+        }
+
+        document.getElementById('btnBuscar').addEventListener('click', function () {
+        const generoSeleccionado = document.getElementById('selectGenero').value;
+        const filas = document.querySelectorAll('#tablaTrabajadores tbody tr');
+
+            filas.forEach(fila => {
+                const sexo = fila.children[3].textContent.trim();
+
+                if (!generoSeleccionado || sexo === generoSeleccionado) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+        });
+    </script>
+}
